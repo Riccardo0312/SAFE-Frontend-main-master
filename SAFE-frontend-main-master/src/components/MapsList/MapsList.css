@@ -1,0 +1,25 @@
+.mapslist{
+    display:flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 100%;
+    padding-bottom:1rem;
+}
+
+.mapslist__citiesList{
+    width:100%;
+    margin-bottom:2rem;
+}
+
+.mapslist__cityName{
+    margin: 0 1rem;
+}
+
+.mapslist__downloadButton{
+    margin: 0 1rem;
+}
+
+.mapslist__resetButton{
+    width:unset;
+}

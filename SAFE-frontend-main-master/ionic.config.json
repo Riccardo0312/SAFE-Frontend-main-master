@@ -1,0 +1,7 @@
+{
+  "name": "safe",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}

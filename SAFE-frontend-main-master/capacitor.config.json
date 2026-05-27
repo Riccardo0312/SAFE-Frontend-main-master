@@ -1,0 +1,17 @@
+{
+  "appId": "it.filippetti.jarvis.safemap",
+  "appName": "safeMap",
+  "bundledWebRuntime": false,
+  "npmClient": "npm",
+  "webDir": "build",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    }
+  },
+  "cordova": {},
+  "linuxAndroidStudioPath": "/home/nico/.local/share/JetBrains/Toolbox/apps/AndroidStudio/ch-0/201.7199119/bin/studio.sh",
+  "server": {
+    "cleartext": true
+  }
+}

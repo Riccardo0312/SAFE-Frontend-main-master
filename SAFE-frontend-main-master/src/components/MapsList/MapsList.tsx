@@ -43,7 +43,7 @@ const MapsList: React.FC = () => {
   const [loadError, setLoadError] = useState(false);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
 
-  const { downloadedCities, setDownloadedCities, loadDataMap, deletAllMap } =
+  const { downloadedCities, setDownloadedCities, loadDataMap, deletAllMap, downloadMap} =
     useContext(MapContext) as ContextMapType;
 
   useLayoutEffect (() => {
@@ -78,69 +78,50 @@ function loadAvailableCities() {
       console.error("Fetch failed:", e);
     });
 }
+
 async function downloadCity(cityName: string) {
+  const fileUrl = `${ENV.BASE_ENDPOINT}/download/${cityName}`;
+
   try {
-    const fileUrl = `${ENV.BASE_ENDPOINT}/download/${cityName}`;
-    const response = await fetch(fileUrl);
-
-    if (!response.ok) {
-      throw new Error(`Errore download mappa: ${response.status}`);
-    }
-
     if (Capacitor.isNativePlatform()) {
-      const blob = await response.blob();
-      const reader = new FileReader();
-
-      reader.onloadend = async () => {
-        const result = reader.result as string;
-        const base64Data = result.split(",")[1];
-
-        await Filesystem.mkdir({
-          path: "maps",
-          directory: Directory.Data,
-          recursive: true,
-        }).catch(() => {
-          // La cartella potrebbe già esistere
-        });
-
-        await Filesystem.writeFile({
-          path: `maps/${cityName}.zip`,
-          data: base64Data,
-          directory: Directory.Data,
-        });
-
-        const updatedCities = Array.from(
-          new Set([...downloadedCities, cityName])
-        );
-
-        await setDownloadedCities(updatedCities);
-
-        toastPresent({
-          buttons: [{ text: MESSAGES.OK, handler: () => toastDismiss() }],
-          message: MESSAGES.DOWNLOADED,
-          duration: 10000,
-        });
-      };
-
-      reader.readAsDataURL(blob);
-    } else {
-      const updatedCities = Array.from(
-        new Set([...downloadedCities, cityName])
-      );
-
-      await setDownloadedCities(updatedCities);
-
-      window.open(fileUrl, "_blank");
+      await downloadMap(cityName, fileUrl);
 
       toastPresent({
         buttons: [{ text: MESSAGES.OK, handler: () => toastDismiss() }],
         message: MESSAGES.DOWNLOADED,
         duration: 10000,
       });
+
+      return;
     }
+
+    const response = await fetch(fileUrl);
+
+    if (!response.ok) {
+      throw new Error(`Errore download mappa: ${response.status}`);
+    }
+
+    const updatedCities = Array.from(
+      new Set([...downloadedCities, cityName])
+    );
+
+    await setDownloadedCities(updatedCities);
+
+    window.open(fileUrl, "_blank");
+
+    toastPresent({
+      buttons: [{ text: MESSAGES.OK, handler: () => toastDismiss() }],
+      message: MESSAGES.DOWNLOADED,
+      duration: 10000,
+    });
   } catch (e) {
-    console.error("Errore nel download:", e);
-    setShowPopover(true);
+    console.error("Errore nel download della mappa:", e);
+
+    toastPresent({
+      buttons: [{ text: MESSAGES.OK, handler: () => toastDismiss() }],
+      message: `Errore nel download della mappa: ${String(e)}`,
+      duration: 10000,
+    });
   }
 }
 

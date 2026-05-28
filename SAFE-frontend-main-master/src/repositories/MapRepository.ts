@@ -1,5 +1,6 @@
 import { preferenceStorage } from '../storage/PreferenceStorage';
 import { StorageKeys } from '../storage/KeysStorage';
+import { mapFileStorage } from "../storage/MapFileStorage";
 
 export class MapRepository {
     async getDownloadedCities(): Promise<string[]> {
@@ -12,6 +13,7 @@ export class MapRepository {
 
     async clearDownloadedCities(): Promise<void> {
         await preferenceStorage.remove(StorageKeys.downloadedCities);
+        await mapFileStorage.clearMapFiles();
     }
 
     async getLocationVisible(): Promise<boolean> {
@@ -20,6 +22,9 @@ export class MapRepository {
 
     async saveLocationVisible(value: boolean): Promise<void> {
         await preferenceStorage.set(StorageKeys.locationVisible, value);
+    }
+    async downloadCityMap(cityName: string, fileUrl: string): Promise<void> {
+      await mapFileStorage.downloadAndExtractCity(cityName, fileUrl);
     }
 }
 

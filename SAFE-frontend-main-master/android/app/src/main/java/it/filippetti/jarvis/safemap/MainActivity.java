@@ -14,6 +14,8 @@ public class MainActivity extends BridgeActivity {
 
         registerPlugin(BluetoothBridge.class);
 
+        registerPlugin(ZipExtractorPlugin.class);
+
         super.onCreate(savedInstanceState);
         // Aggiungi la registrazione del plugin qui
     }

@@ -26,18 +26,33 @@ const MapProvider: FC<PropsWithChildren> = ({ children }) => {
     const [downloadedCities, setDownloadedCitiesLocal] = React.useState<Array<string>>([]);
 
     const loadDataMap = React.useCallback(async () => {
-        const downloadedCities = await mapRepository.getDownloadedCities();
-        const locationVisible = await mapRepository.getLocationVisible();
+      const downloadedCities = await mapRepository.getDownloadedCities();
+      const locationVisible = await mapRepository.getLocationVisible();
 
-        setDownloadedCities(downloadedCities);
-        setLocationVisible(locationVisible);
-
+      setDownloadedCitiesLocal(downloadedCities);
+      setLocationVisible(locationVisible);
     }, []); // Dipendenza da storageService
+
+    const downloadMap = React.useCallback(
+      async (cityName: string, fileUrl: string) => {
+        await mapRepository.downloadCityMap(cityName, fileUrl);
+
+        const currentCities = await mapRepository.getDownloadedCities();
+
+        const updatedCities = Array.from(
+          new Set([...currentCities, cityName])
+        );
+
+        setDownloadedCitiesLocal(updatedCities);
+        await mapRepository.saveDownloadedCities(updatedCities);
+      },
+      []
+    );
 
     // Usa useCallback per definire deletAllMap in modo stabile
     const deletAllMap = React.useCallback(async () => {
-        setDownloadedCitiesLocal([]);
-        await mapRepository.clearDownloadedCities();
+      await mapRepository.clearDownloadedCities();
+      setDownloadedCitiesLocal([]);
     }, []);
 
     // Ora l'useEffect è pulito e dipende da loadDataMap
@@ -99,7 +114,8 @@ const MapProvider: FC<PropsWithChildren> = ({ children }) => {
             downloadedCities,
             setDownloadedCities,
             loadDataMap,
-            deletAllMap
+            deletAllMap,
+            downloadMap
         }}>
             {children}
         </MapContext.Provider>

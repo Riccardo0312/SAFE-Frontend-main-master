@@ -17,10 +17,11 @@ type ContextMapType = {
     addMapListener: (fun: (center:LocationType)=>void)=>void;
     goToLocation: (location:LocationType) => void;
     toggleLocation: () => void;
-    downloadedCities:string[];
+    downloadedCities: string[];
     setDownloadedCities : (string) => void;
     loadDataMap : () => void;
     deletAllMap : () => void;
+    downloadMap: (cityName: string, fileUrl: string) => Promise<void>;
 };
 
 type ContextSensorsType = {

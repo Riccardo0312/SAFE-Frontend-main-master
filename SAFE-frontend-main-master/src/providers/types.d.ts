@@ -33,4 +33,10 @@ type ContextSensorsType = {
     setTeam: (string) => void;
     clearAll:() => void;
     loadDataSensor : () => void;
+    addTeam: (teamName: string) => Promise<void>;
+    removeTeam: (teamName: string) => Promise<void>;
+    assignSensorToTeam: (sensorId: string, teamName: string) => Promise<void>;
+    removeSensorFromTeam: (sensorId: string) => Promise<void>;
+    refreshSensorsFromSampling: () => Promise<void>;
+    samplingVersion: number;
 };

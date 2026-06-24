@@ -5,6 +5,10 @@ import { Sensor } from "../models/sensors";
 import ApiService from "../services/api-service";
 import { IonButton, IonPopover } from "@ionic/react";
 import { MapContext } from "./MapProvider";
+import { teamRepository } from "../repositories/TeamRepository";
+import {
+  samplingRepository,
+} from "../repositories/SamplingRepository";
 
 export const SensorsContext = React.createContext<ContextSensorsType | null>(null);
 
@@ -16,6 +20,23 @@ const SensorsProvider: FC<PropsWithChildren> = ({ children }) => {
     const [storageService] = React.useState(new StorageService());
     const [teams, setTeamsLocal] = React.useState<Array<string>>([]);
     const [team, setTeamLocal] = React.useState<string>("");
+    const [samplingVersion, setSamplingVersion] =
+      useState(0);
+
+    function createDefaultSensor(id: string): Sensor {
+      return {
+        id,
+        status: false,
+        team: "",
+        isHeatmapVisible: true,
+        isMarkerVisible: true,
+        isCentroidVisible: true,
+        heatmapRadius: 20,
+        heatmapBlur: 18,
+      };
+    }
+
+
 
     async function clearAll() {
         setSensors(new Array<Sensor>());
@@ -45,6 +66,37 @@ const SensorsProvider: FC<PropsWithChildren> = ({ children }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const refreshSensorsFromSampling = async () => {
+      const measurements =
+        await samplingRepository.getAll();
+
+      const sensorIds = Array.from(
+        new Set(
+          measurements
+            .map((measurement) => measurement.DEVICE_ID)
+            .filter((id) => id.trim() !== "")
+        )
+      );
+
+      const previousSensors = new Map(
+        sensors.map((sensor) => [sensor.id, sensor])
+      );
+
+      const refreshedSensors = sensorIds.map(
+        (sensorId) =>
+          previousSensors.get(sensorId) ??
+          createDefaultSensor(sensorId)
+      );
+
+      await setSensors(refreshedSensors);
+
+      setSamplingVersion(
+        (currentVersion) => currentVersion + 1
+      );
+    };
+
+
+
     const setSensors = async (sensorsList: Array<Sensor>) => {
         setSensorsLocal(sensorsList);
         storageService.saveSensorLocal(sensorsList);
@@ -60,6 +112,43 @@ const SensorsProvider: FC<PropsWithChildren> = ({ children }) => {
         storageService.saveTeam(team);
     }
 
+    const addTeam = async (teamName: string) => {
+      const updatedTeams = teamRepository.addTeam(teams, teamName);
+      await setTeams(updatedTeams);
+    };
+
+    const removeTeam = async (teamName: string) => {
+      const updatedSensors = teamRepository.clearTeamFromSensors(
+        sensors,
+        teamName
+      );
+
+      const updatedTeams = teamRepository.removeTeam(teams, teamName);
+
+      await setSensors(updatedSensors);
+      await setTeams(updatedTeams);
+    };
+
+    const assignSensorToTeam = async (sensorId: string, teamName: string) => {
+      const updatedSensors = teamRepository.assignSensorToTeam(
+        sensors,
+        sensorId,
+        teamName
+      );
+
+      await setSensors(updatedSensors);
+    };
+
+    const removeSensorFromTeam = async (sensorId: string) => {
+      const updatedSensors = teamRepository.removeSensorFromTeam(
+        sensors,
+        sensorId
+      );
+
+      await setSensors(updatedSensors);
+    };
+
+
     return (
         <SensorsContext.Provider value={{
             sensors,
@@ -69,7 +158,13 @@ const SensorsProvider: FC<PropsWithChildren> = ({ children }) => {
             team,
             setTeam,
             clearAll,
-            loadDataSensor
+            loadDataSensor,
+            addTeam,
+            removeTeam,
+            assignSensorToTeam,
+            removeSensorFromTeam,
+            refreshSensorsFromSampling,
+            samplingVersion,
         }}>
             {children}
             <IonPopover

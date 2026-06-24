@@ -30,38 +30,46 @@ import SensorsProvider from "./providers/SensorsProvider";
 import MapsDownloader from "./pages/MapsDownloader/MapsDownloader";
 import DataSettings from "./pages/DataImporter/DataImporter";
 import BleController from './pages/BleController/BleController';
+import BluetoothProvider from "./providers/BluetoothProvider";
+
 setupIonicReact();
 const App: React.FC = () => {
   return (
     <MapProvider>
       <SensorsProvider>
-        <IonApp>
-          <IonReactRouter>
-          <IonRouterOutlet>
-            <Route exact path="/settings">
-              <Settings />
-            </Route>
-            <Route exact path="/settings/maps">
-              <MapsDownloader />
-            </Route>
-            <Route exact path="/settings/data">
-              <DataSettings />
-            </Route>
-            <Route exact path="/home">
-              <MapViewer />
-            </Route>
-            <Route exact path="/teams">
-              <TeamHandler />
-            </Route>
-            <Route exact path="/">
-              <Redirect to="/settings" />
-            </Route>
-            <Route exact path="/settings/ble">
-              <BleController />
-            </Route>
-            </IonRouterOutlet>
-          </IonReactRouter>
-        </IonApp>
+        <BluetoothProvider>
+          <IonApp>
+            <IonReactRouter>
+              <Route exact path="/settings">
+                <Settings />
+              </Route>
+
+              <Route exact path="/settings/maps">
+                <MapsDownloader />
+              </Route>
+
+              <Route exact path="/settings/data">
+                <DataSettings />
+              </Route>
+
+              <Route exact path="/home">
+                <MapViewer />
+              </Route>
+
+              <Route exact path="/teams">
+                <TeamHandler />
+              </Route>
+
+              <Route exact path="/settings/ble">
+                <BleController />
+              </Route>
+
+              <Route exact path="/">
+                <Redirect to="/settings" />
+              </Route>
+            </IonReactRouter>
+          </IonApp>
+        </BluetoothProvider>
       </SensorsProvider>
     </MapProvider>
   );

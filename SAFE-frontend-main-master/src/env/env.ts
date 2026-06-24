@@ -8,4 +8,7 @@ export const ENV = {
     Capacitor.getPlatform() === "android"
       ? ANDROID_EMULATOR_ENDPOINT
       : BROWSER_ENDPOINT,
+
+        USE_BLE_MOCK: process.env.REACT_APP_BLE_MOCK === "true",
+
 };

@@ -57,9 +57,9 @@ return (
       <div className="teamhandler__content">
 
         <IonList>
-          {teams.map((e) =>
-            e.toUpperCase().startsWith(searchText.toUpperCase()) ? (
-              <TeamItem key={e} team={e} />
+          {teams.map((team) =>
+            team.toUpperCase().startsWith(searchText.toUpperCase()) ? (
+              <TeamItem key={team} team={team} />
             ) : null
           )}
         </IonList>
